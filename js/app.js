@@ -1,38 +1,91 @@
-/*
- * Create a list that holds all of your cards
- */
+var cards = document.getElementsByClassName('card')
+var cardList = [...cards]
 
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
-// Shuffle function from http://stackoverflow.com/a/2450976
-function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-
-    return array;
+// game parameters
+var opened = {
+    first: null,
+    second: null
 }
+var moves = 0
+var no_of_match = 0
 
+cardList.forEach(function(card) {
+    card.addEventListener('click', function(event) {
+        // you see that we could fetch the classes this way right?
+        // event.target.classList.add('open', 'show')
+        moves += 1
+        document.getElementsByClassName('moves')[0].textContent = moves
 
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
+        console.log(opened)
+
+        console.log(event.target.childNodes[1].className)
+
+        if (opened.first === null) {
+            event.target.classList.add('open', 'show')
+
+            opened.first = event.target.childNodes[1].className
+        } else if (opened.first && opened.second === null) {
+            event.target.classList.add('open', 'show')
+
+            opened.second = event.target.childNodes[1].className
+
+            var openedCards = document.querySelectorAll('.card.open.show')
+
+            openedCards.forEach(function(openCard) {
+                openCard.classList.remove('show')
+                openCard.classList.remove('open')
+            })
+
+            if (opened.first === opened.second) {
+                console.log('there was a match!!!')
+                no_of_match += 1
+
+                openedCards.forEach(function(openCard) {
+                    openCard.classList.remove('show')
+                    openCard.classList.remove('open')
+                    openCard.classList.add('match')
+                })
+
+                opened = {
+                    first: null,
+                    second: null
+                }
+
+                if (no_of_match === 8) {
+                    alert('Well done!!!')
+                }
+            } else {
+                console.log('please try again!')
+
+                openedCards.forEach(function(openCard) {
+                    openCard.classList.add('mismatch')
+
+                    setTimeout(function() {
+                        openCard.classList.remove('mismatch')
+                        opened = {
+                            first: null,
+                            second: null
+                        }
+                    }, 1000)
+                })
+            }
+
+        } else {
+            // if (opened.first === opened.second) {
+            //   console.log(document.querySelectorAll('.card.open.show'))
+            // }
+        }
+        // opened.first = event.target.childNodes[1]
+        // console.log(opened)
+    })
+})
+
+document.getElementsByClassName('restart')[0].addEventListener('click', function() {
+    console.log('game reset attempted!')
+
+    cardList.forEach(function(card) {
+        card.classList.remove('match')
+        card.classList.remove('open')
+        card.classList.remove('show')
+    })
+})
